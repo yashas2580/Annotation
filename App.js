@@ -1,12 +1,12 @@
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import HomeScreen from "./HomeScreen";
-import ImageScreen from "./ImageScreen";
-import LoginScreen from "./LoginScreen";
-import RegisterScreen from './RegistrationScreen';
-import AnnotatorScreen from "./AnnotatorScreen";
-import AnnotationImageScreen from "./AnnotationImageScreen";
+import HomeScreen from "./Screens/HomeScreen";
+import ImageScreen from "./Screens/ImageScreen";
+import LoginScreen from "./Screens/LoginScreen";
+import RegisterScreen from './Screens/RegistrationScreen';
+import AnnotatorScreen from "./Screens/AnnotatorScreen";
+import AnnotationImageScreen from "./Screens/AnnotationImageScreen";
 const Stack = createStackNavigator();
 
 export default function App() {
