@@ -72,8 +72,12 @@ const AnnotationImageScreen = () => {
               <Text style={styles.buttonText}>Annotate</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button}>
+              <Text style={styles.buttonText}>Save</Text>
+            </TouchableOpacity>
+             <TouchableOpacity style={styles.button}>
               <Text style={styles.buttonText}>Submit</Text>
             </TouchableOpacity>
+
           </View>
         </View>
       </Modal>

@@ -2,14 +2,21 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Pressable } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
+const roles = ["User", "Annotator", "Verifier", "Admin"];
+
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [selectedRole, setSelectedRole] = useState("User");
 
   const handleLogin = () => {
-    
     if (email && password) {
-      navigation.navigate("AnnotatorScreen");  
+      alert(`Logging in as ${selectedRole}`);
+      if(selectedRole === "User"){
+        navigation.navigate("HomeScreen");
+      }else if(selectedRole === "Annotator"){
+        navigation.navigate("AnnotatorScreen")
+      }
     } else {
       alert("Please enter valid credentials");
     }
@@ -34,7 +41,7 @@ const LoginScreen = ({ navigation }) => {
 
         <View style={styles.inputContainer}>
           <Icon name="lock" size={24} color="#aaa" style={styles.icon} />
-          <TextInput
+          <TextInput 
             style={styles.input}
             placeholder="Password"
             placeholderTextColor="#aaa"
@@ -42,6 +49,16 @@ const LoginScreen = ({ navigation }) => {
             value={password}
             onChangeText={(text) => setPassword(text)}
           />
+        </View>
+
+        <Text style={styles.roleText}>Select Role:</Text>
+        <View style={styles.roleContainer}>
+          {roles.map((role) => (
+            <TouchableOpacity key={role} style={styles.roleButton} onPress={() => setSelectedRole(role)}>
+              <View style={[styles.radioButton, selectedRole === role && styles.radioButtonSelected]} />
+              <Text style={styles.roleLabel}>{role}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
 
         <Pressable style={styles.loginButton} onPress={handleLogin}>
@@ -67,25 +84,25 @@ const styles = StyleSheet.create({
   loginContainer: {
     backgroundColor: "white",
     width: "100%",
-    maxWidth: 400,
-    padding: 20,
+    maxWidth: 600,
+    padding: 30,
     borderRadius: 12,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 5,
   },
   loginText: {
     textAlign: "center",
-    color: "blue",
+    color: "#007EE5",
     fontSize: 28,
     fontWeight: "bold",
     marginBottom: 10,
   },
   signText: {
     textAlign: "center",
-    color: "black",
+    color: "#333",
     fontSize: 16,
     marginBottom: 20,
   },
@@ -108,12 +125,44 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333",
   },
+  roleText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginTop: 10,
+    color: "#333",
+  },
+  roleContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: 10,
+  },
+  roleButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 8,
+  },
+  radioButton: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 2,
+    borderColor: "#aaa",
+    marginRight: 8,
+  },
+  radioButtonSelected: {
+    backgroundColor: "#007EE5",
+    borderColor: "#007EE5",
+  },
+  roleLabel: {
+    fontSize: 14,
+    color: "#333",
+  },
   loginButton: {
-    backgroundColor: "lightblue",
+    backgroundColor: "#007EE5",
     paddingVertical: 15,
     borderRadius: 8,
     alignItems: "center",
-    marginBottom: 10,
+    marginTop: 10,
   },
   loginButtonText: {
     fontSize: 18,
@@ -122,7 +171,7 @@ const styles = StyleSheet.create({
   },
   forgotPasswordText: {
     textAlign: "center",
-    color: "blue",
+    color: "#007EE5",
     fontSize: 14,
     marginTop: 10,
   },

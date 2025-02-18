@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Image, StyleSheet, FlatList, TouchableOpacity, Modal, Dimensions } from "react-native";
+import { View, Image, StyleSheet, FlatList, TouchableOpacity, Modal, Dimensions, ScrollView } from "react-native";
 import Icon from "react-native-vector-icons/Feather";
 import { GestureHandlerRootView, PinchGestureHandler } from "react-native-gesture-handler";
 
@@ -20,6 +20,8 @@ const ImageScreen = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [scale, setScale] = useState(1);
+  const [likedImages, setLikedImages] = useState({}); // Object to track liked images by their id
+  const [buttonColor, setButtonColor] = useState("yellow"); // Default color
 
   const openImage = (index) => {
     setCurrentIndex(index);
@@ -45,8 +47,25 @@ const ImageScreen = () => {
     setScale(event.nativeEvent.scale);
   };
 
+  const toggleLike = (id) => {
+    setLikedImages((prevLikedImages) => ({
+      ...prevLikedImages,
+      [id]: !prevLikedImages[id], // Toggle like status for the specific image
+    }));
+  };
+
+  const toggleColor = () => {
+    if (buttonColor === "yellow") {
+      setButtonColor("green");
+    } else if (buttonColor === "green") {
+      setButtonColor("red");
+    } else {
+      setButtonColor("yellow");
+    }
+  };
+
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent}>
       <FlatList
         data={images}
         numColumns={3}
@@ -57,6 +76,7 @@ const ImageScreen = () => {
           </TouchableOpacity>
         )}
         contentContainerStyle={styles.flatListContent}
+        nestedScrollEnabled={true}
       />
 
       <Modal visible={!!selectedImage} transparent={true}>
@@ -71,26 +91,66 @@ const ImageScreen = () => {
 
           <GestureHandlerRootView>
             <PinchGestureHandler onGestureEvent={onPinchEvent}>
-              <Image
-                source={{ uri: selectedImage?.uri }}
-                style={[styles.fullImage, { transform: [{ scale }] }]}
-              />
+              <View>
+                <Image
+                  source={{ uri: selectedImage?.uri }}
+                  style={[styles.fullImage, { transform: [{ scale }] }]}
+                />
+              </View>
             </PinchGestureHandler>
           </GestureHandlerRootView>
 
           <TouchableOpacity style={styles.arrowRight} onPress={handleNext}>
             <Icon name="chevron-right" size={40} color="#fff" />
           </TouchableOpacity>
+
+          {/* Color Buttons and Like Button */}
+          <View style={styles.buttonsContainer}>
+            <TouchableOpacity
+              style={[styles.button, styles.yellowButton]}
+              onPress={() => setButtonColor("yellow")}
+            >
+              <Icon name="circle" size={30} color="yellow" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.button, styles.greenButton]}
+              onPress={() => setButtonColor("green")}
+            >
+              <Icon name="circle" size={30} color="green" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.button, styles.redButton]}
+              onPress={() => setButtonColor("red")}
+            >
+              <Icon name="circle" size={30} color="red" />
+            </TouchableOpacity>
+
+            {/* Like Button for the current image */}
+            <TouchableOpacity
+              style={[styles.likeButton, { backgroundColor: likedImages[selectedImage?.id] ? "#1877F2" : "#fff" }]} // Blue when liked
+              onPress={() => toggleLike(selectedImage?.id)}
+            >
+              <Icon
+                name={likedImages[selectedImage?.id] ? "heart" : "heart-outline"}
+                size={30}
+                color={likedImages[selectedImage?.id] ? "#fff" : "#1877F2"} // White when liked, blue outline when not
+              />
+            </TouchableOpacity>
+          </View>
         </View>
       </Modal>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  scrollContainer: {
     flex: 1,
+    height: "100vh",
     backgroundColor: "#fff",
+  },
+  scrollContent: {
+    flexGrow: 1,
     padding: 5,
   },
   imageContainer: {
@@ -101,12 +161,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#eee",
   },
   thumbnail: {
-    width: (width - 20) / 3, // 3 images per row
+    width: (width - 20) / 3,
     height: (width - 20) / 3,
     resizeMode: "cover",
   },
   flatListContent: {
-    paddingBottom: 10, // Add some padding for scroll space
+    paddingBottom: 10,
   },
   modalContainer: {
     flex: 1,
@@ -136,6 +196,40 @@ const styles = StyleSheet.create({
     right: 10,
     top: "50%",
     transform: [{ translateY: -20 }],
+  },
+  buttonsContainer: {
+    position: "absolute",
+    bottom: 30,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  button: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    margin: 5,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  yellowButton: {
+    backgroundColor: "yellow",
+  },
+  greenButton: {
+    backgroundColor: "green",
+  },
+  redButton: {
+    backgroundColor: "red",
+  },
+  likeButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#1877F2",
+    marginLeft: 10,
   },
 });
 
