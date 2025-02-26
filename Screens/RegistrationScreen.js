@@ -18,7 +18,7 @@ const RegistrationScreen = ({ navigation }) => {
             placeholder="First Name"
             value={firstName}
             onChangeText={(text) => setFirstName(text)}
-          />
+          /> 
           <TextInput
             style={[styles.nameInput, styles.lastNameInput]}
             placeholder="Last Name"
@@ -174,4 +174,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RegistrationScreen;
+export default RegistrationScreen; 

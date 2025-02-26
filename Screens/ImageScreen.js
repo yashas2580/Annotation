@@ -20,8 +20,8 @@ const ImageScreen = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [scale, setScale] = useState(1);
-  const [likedImages, setLikedImages] = useState({}); // Object to track liked images by their id
-  const [buttonColor, setButtonColor] = useState("yellow"); // Default color
+  const [likedImages, setLikedImages] = useState({}); 
+  const [buttonColor, setButtonColor] = useState("yellow"); 
 
   const openImage = (index) => {
     setCurrentIndex(index);
@@ -104,7 +104,7 @@ const ImageScreen = () => {
             <Icon name="chevron-right" size={40} color="#fff" />
           </TouchableOpacity>
 
-          {/* Color Buttons and Like Button */}
+         
           <View style={styles.buttonsContainer}>
             <TouchableOpacity
               style={[styles.button, styles.yellowButton]}

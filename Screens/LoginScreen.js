@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Pressable } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
-
+import { useNavigation } from "@react-navigation/native"; 
 const roles = ["User", "Annotator", "Verifier", "Admin"];
-
-const LoginScreen = ({ navigation }) => {
+const LoginScreen = () => {
+  const navigation = useNavigation(); 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [selectedRole, setSelectedRole] = useState("User");
@@ -12,10 +12,10 @@ const LoginScreen = ({ navigation }) => {
   const handleLogin = () => {
     if (email && password) {
       alert(`Logging in as ${selectedRole}`);
-      if(selectedRole === "User"){
+      if (selectedRole === "User") {
         navigation.navigate("HomeScreen");
-      }else if(selectedRole === "Annotator"){
-        navigation.navigate("AnnotatorScreen")
+      } else if (selectedRole === "Annotator") {
+        navigation.navigate("AnnotatorScreen");
       }
     } else {
       alert("Please enter valid credentials");
@@ -41,7 +41,7 @@ const LoginScreen = ({ navigation }) => {
 
         <View style={styles.inputContainer}>
           <Icon name="lock" size={24} color="#aaa" style={styles.icon} />
-          <TextInput 
+          <TextInput
             style={styles.input}
             placeholder="Password"
             placeholderTextColor="#aaa"
@@ -65,7 +65,8 @@ const LoginScreen = ({ navigation }) => {
           <Text style={styles.loginButtonText}>Login</Text>
         </Pressable>
 
-        <TouchableOpacity>
+    
+        <TouchableOpacity onPress={() => navigation.navigate("Register")}>
           <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
         </TouchableOpacity>
       </View>
@@ -177,4 +178,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+export default LoginScreen; 

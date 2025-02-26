@@ -6,7 +6,7 @@ import ImageScreen from "./Screens/ImageScreen";
 import LoginScreen from "./Screens/LoginScreen";
 import RegisterScreen from "./Screens/RegistrationScreen";
 import AnnotatorScreen from "./Screens/AnnotatorScreen";
-import AnnotationImageScreen from "./Screens/AnnotationImageScreen";
+import AnnotationImageScreen from "./Screens/AnnotationImageScreen";           
 
 const Stack = createStackNavigator();
 
