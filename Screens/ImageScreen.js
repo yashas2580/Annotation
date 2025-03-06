@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, Image, StyleSheet, FlatList, TouchableOpacity, Modal, Dimensions, ScrollView } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Image, StyleSheet, TouchableOpacity, Modal, Dimensions, ScrollView } from "react-native";
 import Icon from "react-native-vector-icons/Feather";
 import { GestureHandlerRootView, PinchGestureHandler } from "react-native-gesture-handler";
 
@@ -20,8 +20,6 @@ const ImageScreen = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [scale, setScale] = useState(1);
-  const [likedImages, setLikedImages] = useState({}); 
-  const [buttonColor, setButtonColor] = useState("yellow"); 
 
   const openImage = (index) => {
     setCurrentIndex(index);
@@ -29,114 +27,76 @@ const ImageScreen = () => {
     setScale(1);
   };
 
-  const handleNext = () => {
-    const newIndex = (currentIndex + 1) % images.length;
-    setCurrentIndex(newIndex);
-    setSelectedImage(images[newIndex]);
-    setScale(1);
+  const closeModal = () => {
+    setSelectedImage(null);
   };
 
-  const handlePrev = () => {
-    const newIndex = (currentIndex - 1 + images.length) % images.length;
-    setCurrentIndex(newIndex);
-    setSelectedImage(images[newIndex]);
-    setScale(1);
+  const nextImage = () => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+    setSelectedImage(images[(currentIndex + 1) % images.length]);
   };
 
-  const onPinchEvent = (event) => {
-    setScale(event.nativeEvent.scale);
+  const prevImage = () => {
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
+    setSelectedImage(images[(currentIndex - 1 + images.length) % images.length]);
   };
 
-  const toggleLike = (id) => {
-    setLikedImages((prevLikedImages) => ({
-      ...prevLikedImages,
-      [id]: !prevLikedImages[id], // Toggle like status for the specific image
-    }));
-  };
+  // ✅ Add Keyboard Navigation
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (!selectedImage) return; // Ignore if modal is not open
 
-  const toggleColor = () => {
-    if (buttonColor === "yellow") {
-      setButtonColor("green");
-    } else if (buttonColor === "green") {
-      setButtonColor("red");
-    } else {
-      setButtonColor("yellow");
-    }
-  };
+      switch (event.key) {
+        case "ArrowRight":
+          nextImage();
+          break;
+        case "ArrowLeft":
+          prevImage();
+          break;
+        case "Escape":
+          closeModal();
+          break;
+        default:
+          break;
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [selectedImage, currentIndex]);
 
   return (
     <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent}>
-      <FlatList
-        data={images}
-        numColumns={3}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item, index }) => (
-          <TouchableOpacity onPress={() => openImage(index)} style={styles.imageContainer}>
+      <View style={styles.imageGrid}>
+        {images.map((item, index) => (
+          <TouchableOpacity key={item.id} onPress={() => openImage(index)} style={styles.imageContainer}>
             <Image source={{ uri: item.uri }} style={styles.thumbnail} />
           </TouchableOpacity>
-        )}
-        contentContainerStyle={styles.flatListContent}
-        nestedScrollEnabled={true}
-      />
+        ))}
+      </View>
 
+      {/* ✅ Modal for Image Preview */}
       <Modal visible={!!selectedImage} transparent={true}>
         <View style={styles.modalContainer}>
-          <TouchableOpacity style={styles.closeButton} onPress={() => setSelectedImage(null)}>
+          <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
             <Icon name="x" size={30} color="#fff" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.arrowLeft} onPress={handlePrev}>
+          <TouchableOpacity style={styles.arrowLeft} onPress={prevImage}>
             <Icon name="chevron-left" size={40} color="#fff" />
           </TouchableOpacity>
 
           <GestureHandlerRootView>
-            <PinchGestureHandler onGestureEvent={onPinchEvent}>
+            <PinchGestureHandler onGestureEvent={(event) => setScale(event.nativeEvent.scale)}>
               <View>
-                <Image
-                  source={{ uri: selectedImage?.uri }}
-                  style={[styles.fullImage, { transform: [{ scale }] }]}
-                />
+                <Image source={{ uri: selectedImage?.uri }} style={[styles.fullImage, { transform: [{ scale }] }]} />
               </View>
             </PinchGestureHandler>
           </GestureHandlerRootView>
 
-          <TouchableOpacity style={styles.arrowRight} onPress={handleNext}>
+          <TouchableOpacity style={styles.arrowRight} onPress={nextImage}>
             <Icon name="chevron-right" size={40} color="#fff" />
           </TouchableOpacity>
-
-         
-          <View style={styles.buttonsContainer}>
-            <TouchableOpacity
-              style={[styles.button, styles.yellowButton]}
-              onPress={() => setButtonColor("yellow")}
-            >
-              <Icon name="circle" size={30} color="yellow" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.button, styles.greenButton]}
-              onPress={() => setButtonColor("green")}
-            >
-              <Icon name="circle" size={30} color="green" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.button, styles.redButton]}
-              onPress={() => setButtonColor("red")}
-            >
-              <Icon name="circle" size={30} color="red" />
-            </TouchableOpacity>
-
-            {/* Like Button for the current image */}
-            <TouchableOpacity
-              style={[styles.likeButton, { backgroundColor: likedImages[selectedImage?.id] ? "#1877F2" : "#fff" }]} // Blue when liked
-              onPress={() => toggleLike(selectedImage?.id)}
-            >
-              <Icon
-                name={likedImages[selectedImage?.id] ? "heart" : "heart-outline"}
-                size={30}
-                color={likedImages[selectedImage?.id] ? "#fff" : "#1877F2"} // White when liked, blue outline when not
-              />
-            </TouchableOpacity>
-          </View>
         </View>
       </Modal>
     </ScrollView>
@@ -146,27 +106,30 @@ const ImageScreen = () => {
 const styles = StyleSheet.create({
   scrollContainer: {
     flex: 1,
-    height: "100vh",
     backgroundColor: "#fff",
   },
   scrollContent: {
     flexGrow: 1,
+    paddingBottom: 20, 
+  },
+  imageGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
     padding: 5,
   },
   imageContainer: {
-    flex: 1,
-    margin: 4,
+    width: (width - 40) / 3,
+    height: (width - 40) / 3,
+    marginBottom: 10,
     borderRadius: 8,
     overflow: "hidden",
     backgroundColor: "#eee",
   },
   thumbnail: {
-    width: (width - 20) / 3,
-    height: (width - 20) / 3,
+    width: "100%",
+    height: "100%",
     resizeMode: "cover",
-  },
-  flatListContent: {
-    paddingBottom: 10,
   },
   modalContainer: {
     flex: 1,
@@ -196,40 +159,6 @@ const styles = StyleSheet.create({
     right: 10,
     top: "50%",
     transform: [{ translateY: -20 }],
-  },
-  buttonsContainer: {
-    position: "absolute",
-    bottom: 30,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  button: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    margin: 5,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  yellowButton: {
-    backgroundColor: "yellow",
-  },
-  greenButton: {
-    backgroundColor: "green",
-  },
-  redButton: {
-    backgroundColor: "red",
-  },
-  likeButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: "#1877F2",
-    marginLeft: 10,
   },
 });
 

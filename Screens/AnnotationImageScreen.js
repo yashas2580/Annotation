@@ -1,10 +1,19 @@
-import React, { useState } from "react";
-import { View, Image, StyleSheet, FlatList, TouchableOpacity, Modal, Dimensions, Text } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Image,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Modal,
+  Dimensions,
+  Text,
+  ScrollView,
+} from "react-native";
 import Icon from "react-native-vector-icons/Feather";
 
 const { width, height } = Dimensions.get("window");
 
-// Sample images
 const initialImages = [
   { id: "1", uri: "https://placedog.net/300/300?id=1", saved: false },
   { id: "2", uri: "https://placedog.net/300/300?id=2", saved: false },
@@ -20,13 +29,12 @@ const AnnotationImageScreen = () => {
   const [images, setImages] = useState(initialImages);
   const [selectedImage, setSelectedImage] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [filter, setFilter] = useState("all"); // Filter: all, saved, unsaved
+  const [filter, setFilter] = useState("all");
 
-  // Filter images based on selection
   const filteredImages = images.filter((img) => {
     if (filter === "saved") return img.saved;
     if (filter === "unsaved") return !img.saved;
-    return true; // Show all
+    return true;
   });
 
   const openImage = (index) => {
@@ -46,7 +54,6 @@ const AnnotationImageScreen = () => {
     setSelectedImage(filteredImages[newIndex]);
   };
 
-  // Mark image as saved
   const handleSave = () => {
     const updatedImages = images.map((img) =>
       img.id === selectedImage.id ? { ...img, saved: true } : img
@@ -55,9 +62,31 @@ const AnnotationImageScreen = () => {
     setSelectedImage(null);
   };
 
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (!selectedImage) return;
+
+      switch (event.key) {
+        case "ArrowRight":
+          handleNext();
+          break;
+        case "ArrowLeft":
+          handlePrev();
+          break;
+        case "Escape":
+          setSelectedImage(null);
+          break;
+        default:
+          break;
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [selectedImage, currentIndex]);
+
   return (
-    <View style={styles.container}>
-      {/* Dropdown Filter */}
+    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContainer}>
       <View style={styles.filterContainer}>
         <Text style={styles.filterLabel}>🔽 Filter: </Text>
         <select
@@ -71,7 +100,6 @@ const AnnotationImageScreen = () => {
         </select>
       </View>
 
-      {/* Image Grid */}
       <FlatList
         data={filteredImages}
         numColumns={3}
@@ -83,9 +111,9 @@ const AnnotationImageScreen = () => {
           </TouchableOpacity>
         )}
         contentContainerStyle={styles.flatListContent}
+        scrollEnabled={false}
       />
 
-      {/* Modal for Full Image View */}
       <Modal visible={!!selectedImage} transparent={true}>
         <View style={styles.modalContainer}>
           <TouchableOpacity style={styles.closeButton} onPress={() => setSelectedImage(null)}>
@@ -102,18 +130,7 @@ const AnnotationImageScreen = () => {
             <Icon name="chevron-right" size={40} color="#fff" />
           </TouchableOpacity>
 
-          {/* Buttons */}
           <View style={styles.modalButtonContainer}>
-            {selectedImage?.saved ? (
-              <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>Continue</Text>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>Annotate</Text>
-              </TouchableOpacity>
-            )}
-
             {!selectedImage?.saved && (
               <TouchableOpacity style={styles.button} onPress={handleSave}>
                 <Text style={styles.buttonText}>Save</Text>
@@ -121,21 +138,27 @@ const AnnotationImageScreen = () => {
             )}
 
             <TouchableOpacity style={styles.button}>
+              <Text style={styles.buttonText}>Annotate</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.button}>
               <Text style={styles.buttonText}>Submit</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
-    </View>
+    </ScrollView>
   );
 };
 
-// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
     padding: 10,
+  },
+  scrollContainer: {
+    flexGrow: 1,
   },
   filterContainer: {
     flexDirection: "row",
@@ -204,18 +227,19 @@ const styles = StyleSheet.create({
     transform: [{ translateY: -20 }],
   },
   modalButtonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginTop: 20,
-    width: "80%",
+   flexDirection: "row",
+  justifyContent: "center", 
+  width: "70%", 
+  marginTop: 20,
   },
   button: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    backgroundColor: "#007EE5",
-    borderRadius: 5,
-    justifyContent: "center",
-    alignItems: "center",
+   flex: 1,
+  marginHorizontal: 2, 
+  paddingVertical: 10,
+  backgroundColor: "#007EE5",
+  borderRadius: 5,
+  justifyContent: "center",
+  alignItems: "center",
   },
   buttonText: {
     color: "#fff",
